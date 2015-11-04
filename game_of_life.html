@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conways game of life</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style>
+    .svg-container {
+        width:500px;
+        height:500px;
+        margin-top:100px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .controls {
+        width:500px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    </style>
+    <script>
+    $(document).ready(function() {
+        console.log('document ready');
+
+        var h_tiles = 20;
+        var v_tiles = 20;
+        var game_grid = [];
+
+        var width = 500;
+        var height = 500;
+
+        var playing = false;
+
+        for (var i = 0; i < v_tiles; i++) {
+            var row = [];
+            for (var j = 0; j < h_tiles; j++) {
+                row.push({
+                    alive:false,
+                    next:false
+                });
+            }
+            game_grid.push(row);
+        }
+
+        var rules = {
+            'rule_one':1,
+            'rule_two':2,
+            'rule_three':3,
+            'rule_four':4
+        };
+
+        var svg = d3.select('.svg-container').append('svg')
+            .attr('width',width)
+            .attr('height',height);
+
+        function draw_grid(svg) {
+            svg.selectAll('rect').remove();
+            for (var i = 0; i < v_tiles; i++) {
+                for (var j = 0; j < h_tiles; j++) {
+                    svg.append('rect')
+                        .attr('x',i*(width/h_tiles))
+                        .attr('y',j*(height/v_tiles))
+                        .attr('width',width/h_tiles)
+                        .attr('height',height/v_tiles)
+                        .attr('fill',function() {
+                            if(game_grid[i][j].alive) {
+                                return 'rgba(0,0,0,0.8)';
+                            } else {
+                                return 'transparent';
+                            }
+                        })
+                        .attr('stroke','black')
+                        .attr('class','game-tile')
+                        .attr('i',i)
+                        .attr('j',j);
+                }
+            }
+            /**
+             * If playing is true
+             * Apply rules to the grid and redraw on timer
+             */
+            if(playing) {
+                // Apply rules on the grid, setting the state for the next turn
+                var living_neighbours = 0;
+                for(var i = 1; i < v_tiles-1; i++) {
+                    for (var j = 1; j < h_tiles-1; j++) {
+                        // Count neighbouring cells
+                        living_neighbours = 0;
+                        // top
+                        if(game_grid[i-1][j].alive) { living_neighbours += 1; }
+                        // left top
+                        if(game_grid[i-1][j-1].alive) { living_neighbours += 1; }
+                        // left
+                        if(game_grid[i][j-1].alive) { living_neighbours += 1; }
+                        // left bottom
+                        if(game_grid[i+1][j-1].alive) { living_neighbours += 1; }
+                        // bottom
+                        if(game_grid[i+1][j].alive) { living_neighbours += 1; }
+                        // bottom right
+                        if(game_grid[i+1][j+1].alive) { living_neighbours += 1; }
+                        // right
+                        if(game_grid[i][j+1].alive) { living_neighbours += 1; }
+                        // right top
+                        if(game_grid[i-1][j+1].alive) { living_neighbours += 1; }
+
+
+                        if(living_neighbours < 2) { // Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+                            game_grid[i][j].next = false;
+                        } else if(living_neighbours > 3) { // Any live cell with more than three live neighbours dies, as if by over-population.
+                            game_grid[i][j].next = false;
+                        } else { // Any live cell with two or three live neighbours lives on to the next generation.
+                            game_grid[i][j].next = game_grid[i][j].alive;
+                        }
+
+                        if(living_neighbours == 3 && game_grid[i][j].alive == false) {
+                            game_grid[i][j].next = true;
+                        }
+
+                        console.log('neighbours for '+i+' '+j+' : '+living_neighbours);
+                    }
+                }
+
+                // Loop though the playing field to set next turn state to current state
+
+                for (var i = 0; i < v_tiles; i++) {
+                    for (var j = 0; j < h_tiles; j++) {
+                        game_grid[i][j].alive = game_grid[i][j].next;
+                        game_grid[i][j].next = false;
+                    }
+                }
+
+                setTimeout(function () {
+                    draw_grid(svg);
+                }, 100);
+            } else {
+                /**
+                 * Else if the game is not playing yet
+                 * Add an event listener to the squares to set squares to alive
+                 */
+                $('.game-tile').click(function() {
+                    console.log('tile clicked');
+                    console.log($(this).attr('i'));
+                    game_grid[$(this).attr('i')][$(this).attr('j')].alive = true;
+                    draw_grid(svg);
+                });
+            }
+        }
+        draw_grid(svg);
+
+
+
+        /**
+         * Start game on click of the button
+         */
+        $('#start').click(function() {
+            console.log('start game!');
+            if(playing == false) {
+                playing = true;
+                draw_grid(svg);
+            }
+        });
+
+    });
+    </script>
+</head>
+<body>
+<div class='svg-container'>
+</div>
+<div class='controls'>
+    <button id='start'>
+        Start
+    </button>
+</div>
+</body>
+</html>

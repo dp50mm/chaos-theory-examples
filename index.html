@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>index</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js'></script>
+    <script>
+    $(document).ready(function() {
+        var svg = d3.select('.svg-container').append('svg')
+            .attr('width','800px')
+            .attr('height','600px');
+        svg.append('rect').attr('x','100px')
+            .attr('y','100px')
+            .attr('width','20px')
+            .attr('height','20px');
+    });
+    </script>
+</head>
+<body>
+    <h1>Chaos theory workshop examples</h1>
+    <ul>
+        <li><a href='game_of_life.html'>Game of life</a></li>
+        <li><a href='strange_attractor.html'>Strange attractor</a></li>
+        <li><a href='super_formula.html'>Superformula</a></li>
+    </ul>
+    <div class='svg-container'>
+    </div>
+</body>
+</html>
