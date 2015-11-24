@@ -110,15 +110,15 @@
                         if(game_grid[i-1][j+1].alive) { living_neighbours += 1; }
 
 
-                        if(living_neighbours < rules.rule_one) { // Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+                        if(living_neighbours < 2) { // Any live cell with fewer than two live neighbours dies, as if caused by under-population.
                             game_grid[i][j].next = false;
-                        } else if(living_neighbours > rules.rule_three) { // Any live cell with more than three live neighbours dies, as if by over-population.
+                        } else if(living_neighbours > 3) { // Any live cell with more than three live neighbours dies, as if by over-population.
                             game_grid[i][j].next = false;
                         } else { // Any live cell with two or three live neighbours lives on to the next generation.
                             game_grid[i][j].next = game_grid[i][j].alive;
                         }
 
-                        if(living_neighbours == rules.rule_four && game_grid[i][j].alive == false) {
+                        if(living_neighbours == 3 && game_grid[i][j].alive == false) {
                             game_grid[i][j].next = true;
                         }
 
