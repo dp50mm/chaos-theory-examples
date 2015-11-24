@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Superformula</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Dosis:400,200,600,700' rel='stylesheet' type='text/css'>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style>
+    .svg-container {
+        width:600px;
+        height:600px;
+        margin-top:100px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    text {
+        pointer-events:none;
+        font-family:'Dosis';
+    }
+    </style>
+    <script>
+    $(document).ready(function() {
+        // Logging to see if the code actually starts
+        console.log('document ready');
+
+        /**
+         * parameters defining the shape.
+         * Change these and refresh the page!
+         */
+        var parameters = {
+            a:1.01,
+            b:1.03,
+            m:10,
+            n1:5,
+            n2:5,
+            n3:5
+        };
+
+        // Log to check in page which parameters are used
+        console.log(parameters);
+
+        /**
+         * The formula function itself
+         * Reives parameters & the angle
+         */
+        function super_formula(a, b, m, n1, n2, n3, angle) {
+            var first = Math.pow(Math.abs(Math.cos((m*angle)/4)/a),n2);
+            var second = Math.pow(Math.abs(Math.sin((m*angle)/4)/b),n3);
+            return Math.pow(first+second,(-1*(1/n1)));
+        }
+
+        /**
+         * Create SVG elements
+         */
+        var svg = d3.select('.svg-container').append('svg')
+            .attr('width','600px')
+            .attr('height','600px');
+
+        var group = svg.append('g')
+            .attr('transform','translate(250,250)');
+        var paramsGroup = svg.append('g')
+            .attr('transform','translate(250,250)');
+        var paramALabel = paramsGroup.append('text')
+            .text('a: '+parameters.a)
+            .attr('x','0px')
+            .attr('y','-50px');
+
+        var paramBLabel = paramsGroup.append('text')
+            .text('b: '+parameters.b)
+            .attr('x','10px')
+            .attr('y','-30px');
+
+        var paramMLabel = paramsGroup.append('text')
+            .text('m: '+parameters.m)
+            .attr('x','20px')
+            .attr('y','-10px');
+
+        var paramN1Label = paramsGroup.append('text')
+            .text('m: '+parameters.n1)
+            .attr('x','30px')
+            .attr('y','10px');
+        var paramN2Label = paramsGroup.append('text')
+            .text('n2: '+parameters.n2)
+            .attr('x','30px')
+            .attr('y','30px');
+        var paramN3Label = paramsGroup.append('text')
+            .text('n3: '+parameters.n3)
+            .attr('x','20px')
+            .attr('y','50px')
+
+        var points = [];
+        function redraw(x_offset, y_offset) {
+            parameters.n1 = 1+x_offset/100;
+            parameters.n2 = 0.1+(x_offset/30);
+            parameters.n3 = 0.1+(y_offset/10);
+            var paths = svg.selectAll('path');
+            console.log(paths);
+            paths.remove();
+            console.log(x_offset);
+            points = [];
+            for (var angle = 0; angle < Math.PI*2; angle += Math.PI/600) {
+                var radius = super_formula(parameters.a,
+                    parameters.b,
+                    parameters.m,
+                    parameters.n1,
+                    parameters.n2,
+                    parameters.n3,
+                    angle);
+
+                points.push({
+                    'x':(radius*Math.cos(angle)),
+                    'y':(radius*Math.sin(angle))
+                });
+            }
+
+            var lineFunction = d3.svg.line()
+                .x(function(d) {return d.x*50})
+                .y(function(d) {return d.y*50})
+                .interpolate('linear');
+
+            var lineGraph = group.append('path')
+                .attr('d',lineFunction(points))
+                .attr('stroke','black')
+                .attr('stroke-width',2)
+                .attr('fill','none');
+
+            paramsGroup.attr('transform',function() {
+                return 'translate('+x_offset+','+y_offset+')';
+            });
+            paramALabel.text('a='+Math.round(parameters.a*100)/100);
+            paramBLabel.text('b='+Math.round(parameters.b*100)/100);
+            paramMLabel.text('m='+Math.round(parameters.m*100)/100);
+            paramN1Label.text('n1='+Math.round(parameters.n1*100)/100);
+            paramN2Label.text('n2='+Math.round(parameters.n2*100)/100);
+            paramN3Label.text('n3='+Math.round(parameters.n3*100)/100);
+        }
+
+
+        $('.svg-container').mousemove(function(e) {
+            console.log(e.offsetX);
+            redraw(e.offsetX, e.offsetY);
+        });
+    });
+    </script>
+</head>
+<body>
+<div class='svg-container'>
+</div>
+</body>
+</html>

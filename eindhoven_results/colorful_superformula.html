@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Superformula</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style>
+    .svg-container {
+        width:600px;
+        height:600px;
+        margin-top:100px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    </style>
+    <script>
+    $(document).ready(function() {
+        // Logging to see if the code actually starts
+        console.log('document ready');
+
+        /**
+         * parameters defining the shape.
+         * Change these and refresh the page!
+         */
+        var parameters = {
+            a:1,
+            b:1,
+            m:1,
+            n1:1,
+            n2:4,
+            n3:5,
+            speed:500,
+        };
+
+        var repeater;
+        /*
+        var paraparameters = ['a', 'b', 'm', 'n1', 'n2', 'n3'];
+
+        var leftclickcounter = 4;
+        var rightclickcounter = 5;
+        */
+
+        draw(parameters);
+
+        /**
+         * The formula function itself
+         * Reives parameters & the angle
+         */
+        function super_formula(a, b, m, n1, n2, n3, angle) {
+            var first = Math.pow(Math.abs(Math.cos((m*angle)/4)/a),n2);
+            var second = Math.pow(Math.abs(Math.sin((m*angle)/4)/b),n3);
+            return Math.pow(first+second,(-1*(1/n1)));
+        }
+
+        /**
+         * Create SVG elements
+         */
+
+        function draw(parameters){
+
+            //console.log(parameters);
+
+            $('.svg-container').empty();
+
+            var svg = d3.select('.svg-container').append('svg')
+                .attr('width','600px')
+                .attr('height','600px');
+
+            var group = svg.append('g')
+                .attr('transform','translate(250,250)');
+
+            var points = [];
+            var i = 0;
+            var color = [];
+            var prevx = 1;
+            var prevy = 0;
+            for (var angle = 0; angle < Math.PI*2; angle += Math.PI/100) {
+                var radius = super_formula(parameters.a,
+                    parameters.b,
+                    parameters.m,
+                    parameters.n1,
+                    parameters.n2,
+                    parameters.n3,
+                    angle);
+
+                var curx = radius*Math.cos(angle);
+                var cury = radius*Math.sin(angle);
+
+                points.push({
+                    'x':curx,
+                    'y':cury,
+                    'x1':curx,
+                    'y1':cury,
+                    'x2':prevx,
+                    'y2':prevy,
+                    'color':color[i]
+                });
+
+                console.log(points);
+
+                prevx = curx;
+                prevy = cury;
+
+                i++;
+                color[i] = (Math.floor(i*((255*255*128)/100))).toString(16);
+                while(color[i].length<6){
+                    color[i] = "0" + color[i];
+                }
+            }
+
+            var lineFunction = d3.svg.line()
+                .x(function(d) {return d.x*100})
+                .y(function(d) {return d.y*100})
+                .interpolate('linear');
+
+            for (var i = 0; i < points.length-1; i+= 1) {
+                var sub_path = [points[i],points[i+1]];
+                var lineGraph = group.append('path')
+                //.attr('x1', function(d){ return d.x1; })
+                //.attr('x2', function(d){ return d.x2; })
+                //.attr('y1', function(d){ return d.y1; })
+                //.attr('y2', function(d){ return d.y2; })
+                .attr('d', lineFunction(sub_path))
+                .attr('stroke-width',2)
+                .attr('stroke', '#'+points[i].color)
+                .attr('fill','none');
+            }
+            
+
+            repeater = setTimeout(function(){
+                draw(parameters);
+                parameters['n1'] = 100*Math.sin(Date.now()/parameters['speed']);
+                parameters['m'] = 100*Math.cos(Date.now()/parameters['speed']);
+            }, 50);
+        }
+
+        $('body').mousemove(function(event){
+            parameters['n3'] = event.pageX/10;
+            parameters['speed'] = event.pageY/0.01;
+        });
+        
+        /*
+
+        $('body').mouseup(function(){
+            if(event.which == 1){
+                leftclickcounter = (leftclickcounter+1)%6;
+            }
+            else if(event.which == 2){
+                rightclickcounter = (rightclickcounter+1)%6;
+            }
+        })
+ 
+        */
+
+
+
+    });
+    </script>
+</head>
+<body>
+<div class='svg-container'>
+</div>
+</body>
+</html>

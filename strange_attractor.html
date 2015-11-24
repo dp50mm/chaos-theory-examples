@@ -3,7 +3,7 @@
 <head>
     <title>Strange Attractor</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js'></script>
     <style>
     .svg-container {
@@ -38,15 +38,14 @@
          * The parameters for the equations
          */
         var parameters = {
-            iterations: 12500,
-            a: 6.8,
-            b: 10.9,
-            c: 0.5,
+            iterations: 125000,
+            a: 2.8,
+            b: 13.9,
+            c: 0.6,
             interval: 0.005,
             fn: 1
         };
 
-        
         /**
          * Setting up the 3d renderer
          */

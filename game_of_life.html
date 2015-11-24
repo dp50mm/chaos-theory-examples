@@ -3,8 +3,9 @@
 <head>
     <title>Conways game of life</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
     <style>
+    /* Center the svg on the web page */
     .svg-container {
         width:500px;
         height:500px;
@@ -12,6 +13,12 @@
         margin-left:auto;
         margin-right:auto;
     }
+    /* Add hover effect to game tiles to make the interaction more intuitive*/
+    .game-tile:hover {
+        cursor:pointer;
+        stroke-width:2px;
+    }
+    /* Center the controls on the web page */
     .controls {
         width:500px;
         margin-left:auto;
@@ -43,8 +50,7 @@
         }
 
         var rules = {
-            'rule_one':1,
-            'rule_two':2,
+            'rule_one':2,
             'rule_three':3,
             'rule_four':4
         };
@@ -104,15 +110,15 @@
                         if(game_grid[i-1][j+1].alive) { living_neighbours += 1; }
 
 
-                        if(living_neighbours < 2) { // Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+                        if(living_neighbours < rules.rule_one) { // Any live cell with fewer than two live neighbours dies, as if caused by under-population.
                             game_grid[i][j].next = false;
-                        } else if(living_neighbours > 3) { // Any live cell with more than three live neighbours dies, as if by over-population.
+                        } else if(living_neighbours > rules.rule_three) { // Any live cell with more than three live neighbours dies, as if by over-population.
                             game_grid[i][j].next = false;
                         } else { // Any live cell with two or three live neighbours lives on to the next generation.
                             game_grid[i][j].next = game_grid[i][j].alive;
                         }
 
-                        if(living_neighbours == 3 && game_grid[i][j].alive == false) {
+                        if(living_neighbours == rules.rule_four && game_grid[i][j].alive == false) {
                             game_grid[i][j].next = true;
                         }
 
@@ -170,6 +176,12 @@
     <button id='start'>
         Start
     </button>
+</div>
+<div class='controls'>
+    <h2>Manual</h2>
+    <p>step 1: click on some squares to turn them alive</p>
+    <p>step 2: click on [start] to start the game</p>
+    <p>optional step 3: <b>refresh the page to start over</b></p>
 </div>
 </body>
 </html>

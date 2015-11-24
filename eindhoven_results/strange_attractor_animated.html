@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Strange Attractor</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js'></script>
+    <style>
+    .svg-container {
+        width:800px;
+        height:600px;
+        margin-top:100px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    </style>
+    <script>
+     var renderer = new THREE.WebGLRenderer({ alpha: true });
+     var scene = new THREE.Scene();
+
+     var WIDTH = 800;
+     var HEIGHT = 600;
+     var VIEW_ANGLE = 5;
+     var ASPECT = WIDTH/HEIGHT;
+     var NEAR = 0.1;
+     var FAR = 10000;
+
+     var camera = new THREE.PerspectiveCamera(
+       VIEW_ANGLE,
+       ASPECT,
+       NEAR,
+       FAR);
+     var line;
+
+    $(document).ready(function() {
+        console.log('document ready');
+
+        /**
+         * Setting up the 3d renderer
+         */
+        var $container = $('.canvas-container');
+
+
+        scene.add(camera);
+        camera.position.z = 300;
+        renderer.setSize(WIDTH,HEIGHT);
+        $container.append(renderer.domElement);
+
+      //console.log(scene);
+      //renderer.render(scene, camera);
+      start();
+     });
+
+     /**
+      * Strange attractor equations
+      * Javascript object with  the equations as parameters
+      */
+     var equations = {
+       x: function(x, y, a, interval) {
+         return x - (a * x) * interval + (a * y) * interval;
+       },
+       y: function(x, y, z, b, interval) {
+         return y + (b * x) * interval - y * interval - (z * x) * interval;
+       },
+       z: function(x, y, z, c, interval) {
+         return z - (c * z) * interval + (x * y) * interval;
+       }
+     };
+
+     function g(parameters) {
+       /**
+        * Variables for computation!
+        */
+       var geometry = new THREE.Geometry();
+       var x = 0.1;
+       var y = 0.1;
+       var z = 0.1;
+       var newX = x;
+       var newY = y;
+       var newZ = z;
+       var minX = minY = minZ = Number.POSITIVE_INFINITY;
+       var maxX = maxY = maxZ = Number.NEGATIVE_INFINITY;
+
+       var a = parameters.a;
+       var b = parameters.b;
+       var c = parameters.c;
+       var interval = parameters.interval;
+
+       /**
+        * Iterate on the equations.
+        * This is where the chaotic process happens!
+        * Output feeds back into input.
+        */
+       for(var i = 0; i < parameters.iterations; i++) {
+         newX = equations.x(x, y, a, interval);
+         newY = equations.y(x, y, z, b, interval);
+         newZ = equations.z(x, y, z, c, interval);
+
+         geometry.vertices.push(new THREE.Vector3(newX,newY,newZ));
+         x = newX;
+         y = newY;
+         z = newZ;
+       }
+
+       return geometry;
+     }
+     var parameters = {
+         a: 10
+     };
+     function draw(t) {
+       /**
+        * The parameters for the equations
+        */
+       parameters = {
+         iterations: t,
+         a: 10,
+         b: 25,
+         c: 2.6,
+         interval: 0.002,
+         fn: 1
+       };
+
+       var lineMaterial = new THREE.LineBasicMaterial({
+         color: new THREE.Color("rgb(0, 0, 0)"),
+       });
+
+       var geometry = g(parameters);
+       //console.log(geometry);
+
+       line = new THREE.Line(geometry, lineMaterial);
+       scene.add(line);
+       renderer.render(scene, camera);
+     }
+
+     function undraw() {
+       scene.remove(line);
+       //renderer.clear();
+     }
+
+     function start() {
+       //draw();
+       ///*
+       function anim(t) {
+         undraw();
+         draw(t);
+         requestAnimationFrame(anim);
+       }
+       requestAnimationFrame(anim);
+       //*/
+     }
+    </script>
+</head>
+<body>
+<div class='canvas-container'>
+</div>
+</body>
+</html>
