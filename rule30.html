@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rule 30</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+    <style>
+    /* Center the svg on the web page */
+    .svg-container {
+        width:1000px;
+        height:1000px;
+        margin-top:100px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    /* Add hover effect to game tiles to make the interaction more intuitive*/
+    .game-tile:hover {
+        cursor:pointer;
+        stroke-width:1px;
+    }
+    /* Center the controls on the web page */
+    .controls {
+        width:1000px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    </style>
+
+    <script>
+
+    $(document).ready(function() {
+
+        var rows = 99;
+        var cols = 99;
+        var grid = [];
+
+        var width = 1000;
+        var height = 1000;
+
+        for (var r = 0; r < rows; r++) {
+            var row = [];
+            for (var c = 0; c < cols; c++) {
+                row.push({
+                    alive: false
+                });
+            }
+            grid.push(row);
+        }
+
+        // set alive cell.
+        var cell = grid[0][Math.floor(cols / 2)];
+        cell.alive = true;
+
+        var rules = [
+            [[1,1,1],0],
+            [[1,1,0],0],
+            [[1,0,1],0],
+            [[1,0,0],1],
+            [[0,1,1],1],
+            [[0,1,0],1],
+            [[0,0,1],1],
+            [[0,0,0],0]
+        ];
+
+        var svg = d3.select('.svg-container').append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        function draw(svg) {
+
+            svg.selectAll('rect').remove();
+
+            for (var r = 0; r < rows; r++) {
+                for (var c = 0; c < cols; c++) {
+                    svg.append('rect')
+                        .attr('x', c*(width/cols))
+                        .attr('y', r*(height/rows))
+                        .attr('width', width/cols)
+                        .attr('height', height/rows)
+                        .attr('fill', function() {
+                            if(grid[r][c].alive) {
+                                return 'rgba(0,0,0,0.8)';
+                            } else {
+                                return 'transparent';
+                            }
+                        })
+                        .attr('stroke', 'grey')
+                        .attr('class', 'game-tile')
+                        .attr('r', r)
+                        .attr('c', c);
+                }
+            }
+        }
+
+        function drawRow() {
+            for (var c = 0; c < cols; c++) {
+
+                var cell = grid[r][c];
+
+                var left = grid[r-1][c-1];
+                var middle = grid[r-1][c];
+                var right = grid[r-1][c+1];
+
+                for (var t = 0; t < rules.length; t++){
+                    var rule = rules[t];
+
+                    var leftApplies = false;
+                    var middleApplies = false;
+                    var rightApplies = false;
+
+                    if (left && left.alive === !!rule[0][0]){
+                        leftApplies = true;
+                    }
+
+                    if (middle && middle.alive === !!rule[0][1]){
+                        middleApplies = true;
+                    }
+
+                    if (right && right.alive === !!rule[0][2]){
+                        rightApplies = true;
+                    }
+
+                    if (leftApplies && middleApplies && rightApplies){
+                        cell.alive = !!rule[1];
+                    }
+                }
+            }
+
+            draw(svg);
+
+            // if it's the last row
+            if (r === rows - 1){
+                clearInterval(interval);
+            }
+
+            r++;
+        }
+
+        draw(svg);
+        var r = 1;
+        var interval = setInterval(drawRow, 250);
+
+    });
+    </script>
+</head>
+<body>
+    <div class='svg-container'></div>
+</body>
+</html>
